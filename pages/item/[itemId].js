@@ -1,73 +1,46 @@
-// ファイル場所: pages/item/[itemId].js
-
-import { createClient, OAuthStrategy } from '@wix/sdk';
-import { products, collections } from '@wix/stores';
-import { CLIENT_ID } from '@/constants/constants';
-import Head from 'next/head';
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import { createClient, OAuthStrategy } from "@wix/sdk";
+import { products } from "@wix/stores";
 
 const wixClient = createClient({
-  modules: { products, collections },
+  modules: { products },
   siteId: process.env.WIX_SITE_ID,
   auth: OAuthStrategy({
-    clientId: CLIENT_ID,
-    tokens: { accessToken: '', refreshToken: '' }, // 公開データ取得のみであれば空でOK
+    clientId: process.env.NEXT_PUBLIC_WIX_CLIENT_ID,
+    tokens: { refreshToken: "", accessToken: { value: "", expiresAt: 0 } },
   }),
 });
 
-export async function getStaticPaths() {
-  // 任意でプレビルド用のpathを定義、または fallback を true にする
-  return {
-    paths: [],
-    fallback: 'blocking',
-  };
-}
+export default function AgentItemPage() {
+  const { query } = useRouter();
+  const [filteredProducts, setFilteredProducts] = useState([]);
 
-export async function getStaticProps({ params }) {
-  const targetCollectionName = params.itemId.toUpperCase();
+  useEffect(() => {
+    if (!query.itemId) return;
 
-  // すべてのコレクションを取得
-  const collectionRes = await wixClient.collections.queryCollections().find();
-  const targetCollection = collectionRes.items.find(
-    (c) => c.name.toUpperCase() === targetCollectionName
-  );
+    async function fetchFiltered() {
+      const result = await wixClient.products.queryProducts().find();
+      const items = result.items.filter((p) =>
+    p.sku?.toLowerCase().endsWith(`-${query.itemId.toLowerCase()}`)
+    );
+    }
 
-  if (!targetCollection) {
-    return { notFound: true };
-  }
+    fetchFiltered();
+  }, [query.itemId]);
 
-  // コレクションIDに属する商品を取得
-  const result = await wixClient.products
-    .queryProducts()
-    .withFilters({ collectionId: targetCollection._id })
-    .find();
-
-  return {
-    props: {
-      products: result.items,
-      agentId: targetCollectionName,
-    },
-    revalidate: 60, // ISRを有効にする場合（1分ごとに更新）
-  };
-}
-
-export default function AgentProductsPage({ products, agentId }) {
   return (
-    <>
-      <Head>
-        <title>代理店: {agentId}</title>
-      </Head>
-      <main>
-        <h1>代理店: {agentId}</h1>
-        {products.length === 0 ? (
-          <p>該当商品がありません</p>
+    <div>
+      <h1>代理店: {query.itemId}</h1>
+      <ul>
+        {filteredProducts.length > 0 ? (
+          filteredProducts.map((product) => (
+            <li key={product._id}>{product.name}（SKU: {product.sku}）</li>
+          ))
         ) : (
-          <ul>
-            {products.map((product) => (
-              <li key={product._id}>{product.name}</li>
-            ))}
-          </ul>
+          <p>該当商品がありません</p>
         )}
-      </main>
-    </>
+      </ul>
+    </div>
   );
 }
