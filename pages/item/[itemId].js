@@ -21,8 +21,9 @@ export default function AgentItemPage() {
 
     async function fetchFiltered() {
       const result = await wixClient.products.queryProducts().find();
-      const items = result.items.filter((p) => p.sku?.endsWith(`-${query.itemId}`));
-      setFilteredProducts(items);
+      const items = result.items.filter((p) =>
+    p.sku?.toLowerCase().endsWith(`-${query.itemId.toLowerCase()}`)
+    );
     }
 
     fetchFiltered();
