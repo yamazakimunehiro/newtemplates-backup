@@ -19,19 +19,30 @@ export default function AgentItemPage() {
   useEffect(() => {
     if (!query.itemId) return;
 
-    async function fetchFiltered() {
-      try {
-        const result = await wixClient.products.queryProducts().find();
-        const items = result.items.filter((p) =>
-          p.name?.trim().toLowerCase().endsWith(`-${query.itemId.toLowerCase()}`)
-        );
-        setFilteredProducts(items);
-      } catch (error) {
-        console.error("商品取得に失敗しました:", error);
+    async function fetchAllProducts() {
+      const allItems = [];
+      let hasNext = true;
+      let cursor = undefined;
+
+      // ページネーションで全件取得
+      while (hasNext) {
+        const result = await wixClient.products.queryProducts().withCursor(cursor).find();
+        allItems.push(...result.items);
+        cursor = result.nextCursor;
+        hasNext = !!cursor;
       }
+
+      // itemId でフィルタ（例: -kk）
+      const targetSuffix = `-${query.itemId.toLowerCase()}`;
+      const filtered = allItems.filter((p) =>
+        p.name?.trim().toLowerCase().endsWith(targetSuffix)
+      );
+
+      console.log(`代理店「${query.itemId}」の該当商品件数: ${filtered.length}`);
+      setFilteredProducts(filtered);
     }
 
-    fetchFiltered();
+    fetchAllProducts();
   }, [query.itemId]);
 
   return (
@@ -40,7 +51,9 @@ export default function AgentItemPage() {
       <ul>
         {filteredProducts.length > 0 ? (
           filteredProducts.map((product) => (
-            <li key={product._id}>{product.name}（SKU: {product.sku}）</li>
+            <li key={product._id}>
+              {product.name}（SKU: {product.sku}）
+            </li>
           ))
         ) : (
           <p>該当商品がありません</p>
