@@ -15,15 +15,29 @@ const wixClient = createClient({
 export default function AgentItemPage() {
   const { query } = useRouter();
   const [filteredProducts, setFilteredProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!query.itemId) return;
 
     async function fetchFiltered() {
-      const result = await wixClient.products.queryProducts().find();
-      const items = result.items.filter((p) =>
-    p.sku?.toLowerCase().endsWith(`-${query.itemId.toLowerCase()}`)
-    );
+      try {
+        setLoading(true);
+
+        const targetCollectionId = query.itemId.toUpperCase(); // コレクションID（大文字で）
+
+        const result = await wixClient.products
+          .queryProducts()
+          .hasSome("collectionIds", [targetCollectionId])
+          .find();
+
+        setFilteredProducts(result.items);
+      } catch (err) {
+        console.error("商品取得失敗", err);
+        setFilteredProducts([]);
+      } finally {
+        setLoading(false);
+      }
     }
 
     fetchFiltered();
@@ -32,15 +46,19 @@ export default function AgentItemPage() {
   return (
     <div>
       <h1>代理店: {query.itemId}</h1>
-      <ul>
-        {filteredProducts.length > 0 ? (
-          filteredProducts.map((product) => (
-            <li key={product._id}>{product.name}（SKU: {product.sku}）</li>
-          ))
-        ) : (
-          <p>該当商品がありません</p>
-        )}
-      </ul>
+      {loading ? (
+        <p>読み込み中...</p>
+      ) : filteredProducts.length > 0 ? (
+        <ul>
+          {filteredProducts.map((product) => (
+            <li key={product._id}>
+              {product.name}（SKU: {product.sku}）
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>該当商品がありません</p>
+      )}
     </div>
   );
 }
