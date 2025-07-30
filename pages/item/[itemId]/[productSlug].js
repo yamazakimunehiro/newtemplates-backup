@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { myWixClient } from "@/lib/wixClient";
+import { myWixClient } from "../../../lib/wixClient"; // ✅ 相対パスに修正
 
 export default function ProductDetailPage() {
   const { query } = useRouter();
@@ -76,7 +76,7 @@ export default function ProductDetailPage() {
             lineItems: [
               {
                 catalogReference: {
-                  appId: "1380b703-ce81-ff05-f115-39571d94dfcd", // 固定
+                  appId: "1380b703-ce81-ff05-f115-39571d94dfcd", // 固定ID
                   catalogItemId: product.wixProductId,
                 },
                 quantity: 1,
