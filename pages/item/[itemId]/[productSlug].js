@@ -1,6 +1,7 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { myWixClient } from "../../../src/lib/wixClient";
+import Cookies from "js-cookie";
 
 export default function ProductDetailPage() {
   const { query } = useRouter();
@@ -25,18 +26,28 @@ export default function ProductDetailPage() {
         const found = data.find((item) => item.slug?.toLowerCase() === slug);
         setProduct(found || null);
 
-        const cartData = await myWixClient.currentCart.getCurrentCart();
-        setCart(cartData);
+        // 👇 セッション状態を確認（ログインしてないと null）
+        console.log("session cookie:", Cookies.get("session"));
 
-        if (found) {
-          const foundItem = cartData.lineItems?.find(
-            (item) => item.catalogReference.catalogItemId === found.wixProductId
-          );
-          if (foundItem) {
-            setQuantity(foundItem.quantity);
-            setCartItemId(foundItem._id);
+        // 👇 カートの取得を安全に try/catch で処理
+        try {
+          const cartData = await myWixClient.currentCart.getCurrentCart();
+          setCart(cartData);
+
+          if (found) {
+            const foundItem = cartData.lineItems?.find(
+              (item) => item.catalogReference.catalogItemId === found.wixProductId
+            );
+            if (foundItem) {
+              setQuantity(foundItem.quantity);
+              setCartItemId(foundItem._id);
+            }
           }
+        } catch (err) {
+          console.warn("⚠ カート取得に失敗しました。セッションがない可能性があります。");
+          setCart({ lineItems: [] });
         }
+
       } catch (error) {
         console.error("データ取得エラー:", error);
         setProduct(null);
@@ -76,7 +87,7 @@ export default function ProductDetailPage() {
             lineItems: [
               {
                 catalogReference: {
-                  appId: "1380b703-ce81-ff05-f115-39571d94dfcd", // 固定ID
+                  appId: "1380b703-ce81-ff05-f115-39571d94dfcd", // 固定Wix App ID
                   catalogItemId: product.wixProductId,
                 },
                 quantity: 1,
