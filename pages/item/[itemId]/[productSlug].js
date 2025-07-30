@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { myWixClient } from "../../../lib/wixClient"; // ✅ 相対パスに修正
+import { myWixClient } from "../../../src/lib/wixClient";
 
 export default function ProductDetailPage() {
   const { query } = useRouter();
