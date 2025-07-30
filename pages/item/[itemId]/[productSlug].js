@@ -6,12 +6,12 @@ import { products } from "@wix/stores";
 import { currentCart } from "@wix/ecom";
 import { redirects } from "@wix/redirects";
 
-// 定数（環境変数と合わせてください）
-const CLIENT_ID = "your-client-id"; // 既存の CLIENT_ID に合わせて書き換えてください
+// 環境変数から取得することをおすすめ（直接書いてもOK）
+const CLIENT_ID = "your-client-id"; // ← 実際のCLIENT_IDに置き換えてください
 
 const myWixClient = createClient({
   modules: { products, currentCart, redirects },
-  siteId: process.env.NEXT_PUBLIC_WIX_SITE_ID, // .env で定義してください
+  siteId: process.env.NEXT_PUBLIC_WIX_SITE_ID,
   auth: OAuthStrategy({
     clientId: CLIENT_ID,
     tokens: JSON.parse(Cookies.get("session") || null),
@@ -22,59 +22,87 @@ export default function ProductDetailPage() {
   const { query } = useRouter();
   const [product, setProduct] = useState(null);
   const [cart, setCart] = useState({});
+  const [cartItemId, setCartItemId] = useState(null);
+  const [quantity, setQuantity] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!query.itemId || !query.productSlug) return;
 
-    async function fetchProduct() {
+    async function fetchData() {
       try {
         const res = await fetch(`/${query.itemId.toLowerCase()}_products.json`);
-        if (!res.ok) throw new Error("JSON取得失敗");
+        if (!res.ok) throw new Error("商品JSON取得失敗");
 
         const data = await res.json();
         const found = data.find((item) => item.slug === query.productSlug);
         setProduct(found || null);
+        const cartData = await myWixClient.currentCart.getCurrentCart();
+        setCart(cartData);
+
+        if (found) {
+          const foundItem = cartData.lineItems?.find(
+            (item) => item.catalogReference.catalogItemId === found.wixProductId
+          );
+          if (foundItem) {
+            setQuantity(foundItem.quantity);
+            setCartItemId(foundItem._id);
+          }
+        }
       } catch (error) {
-        console.error("商品取得エラー:", error);
+        console.error("データ取得エラー:", error);
         setProduct(null);
       } finally {
         setLoading(false);
       }
     }
 
-    async function fetchCart() {
-      try {
-        const cartData = await myWixClient.currentCart.getCurrentCart();
-        setCart(cartData);
-      } catch (error) {
-        console.error("カート取得失敗:", error);
-      }
-    }
-
-    fetchProduct();
-    fetchCart();
+    fetchData();
   }, [query.itemId, query.productSlug]);
 
-  const addToCart = async () => {
+  const updateQuantity = async (newQty) => {
     if (!product || !product.wixProductId) return;
+    if (newQty < 0) return;
 
     try {
-      const { cart: updatedCart } = await myWixClient.currentCart.addToCurrentCart({
-        lineItems: [
-          {
-            catalogReference: {
-              appId: "1380b703-ce81-ff05-f115-39571d94dfcd", // 固定ID（Wix Stores App）
-              catalogItemId: product.wixProductId,
-            },
-            quantity: 1,
-          },
-        ],
-      });
+      if (newQty === 0 && cartItemId) {
+        await myWixClient.currentCart.removeLineItemFromCurrentCart(cartItemId);
+        setQuantity(0);
+        setCartItemId(null);
+        const updatedCart = await myWixClient.currentCart.getCurrentCart();
+        setCart(updatedCart);
+        return;
+      }
 
-      setCart(updatedCart);
-    } catch (error) {
-      console.error("カート追加失敗:", error);
+      if (cartItemId) {
+        const { cart: updatedCart } =
+          await myWixClient.currentCart.updateCurrentCartLineItemQuantity([
+            { _id: cartItemId, quantity: newQty },
+          ]);
+        setQuantity(newQty);
+        setCart(updatedCart);
+      } else {
+        const { cart: updatedCart } =
+          await myWixClient.currentCart.addToCurrentCart({
+            lineItems: [
+              {
+                catalogReference: {
+                  appId: "1380b703-ce81-ff05-f115-39571d94dfcd",
+                  catalogItemId: product.wixProductId,
+                },
+                quantity: 1,
+              },
+            ],
+          });
+        const addedItem = updatedCart.lineItems.find(
+          (item) => item.catalogReference.catalogItemId === product.wixProductId
+        );
+        setCart(updatedCart);
+        setQuantity(1);
+        setCartItemId(addedItem?._id);
+      }
+    } catch (err) {
+      console.error("数量変更失敗:", err);
     }
   };
 
@@ -91,8 +119,8 @@ export default function ProductDetailPage() {
       });
 
       window.location = redirect.redirectSession.fullUrl;
-    } catch (error) {
-      console.error("チェックアウトエラー:", error);
+    } catch (err) {
+      console.error("チェックアウト失敗:", err);
     }
   };
 
@@ -100,8 +128,10 @@ export default function ProductDetailPage() {
     try {
       await myWixClient.currentCart.deleteCurrentCart();
       setCart({});
-    } catch (error) {
-      console.error("カートクリア失敗:", error);
+      setCartItemId(null);
+      setQuantity(0);
+    } catch (err) {
+      console.error("カートクリア失敗:", err);
     }
   };
 
@@ -113,7 +143,12 @@ export default function ProductDetailPage() {
       <h1>{product.name}</h1>
       <p>{product.description}</p>
       <p>{product.price}</p>
-      <button onClick={addToCart}>カートに追加</button>
+
+      <div style={{ display: "flex", alignItems: "center", gap: "12px", marginTop: "16px" }}>
+        <button onClick={() => updateQuantity(quantity - 1)}>-</button>
+        <span>{quantity} 個</span>
+        <button onClick={() => updateQuantity(quantity + 1)}>+</button>
+      </div>
 
       {cart.lineItems?.length > 0 && (
         <div style={{ marginTop: "32px" }}>
