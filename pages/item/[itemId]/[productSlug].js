@@ -2,9 +2,12 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { createClient, OAuthStrategy } from "@wix/sdk";
-import { products, currentCart, redirects } from "@wix/stores";
+import { products } from "@wix/stores";
+import { currentCart } from "@wix/ecom";
+import { redirects } from "@wix/redirects";
 
-const CLIENT_ID = "your-client-id"; // 既存のCLIENT_IDをここに
+// 環境変数または直接書き込み
+const CLIENT_ID = "your-client-id"; // ← 実際のCLIENT_IDに置き換えてください
 
 const myWixClient = createClient({
   modules: { products, currentCart, redirects },
@@ -19,75 +22,130 @@ export default function ProductDetailPage() {
   const { query } = useRouter();
   const [product, setProduct] = useState(null);
   const [cart, setCart] = useState({});
+  const [cartItemId, setCartItemId] = useState(null);
+  const [quantity, setQuantity] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!query.itemId || !query.productSlug) return;
 
-    async function fetchProduct() {
+    async function fetchData() {
       try {
-        const res = await fetch(`/${query.itemId.toLowerCase()}_products.json`);
-        if (!res.ok) throw new Error("JSON取得失敗");
+        const agentId = query.itemId.toLowerCase();
+        const slug = query.productSlug.toLowerCase();
+
+        const res = await fetch(`/${agentId}_products.json`);
+        if (!res.ok) throw new Error("商品JSON取得失敗");
 
         const data = await res.json();
-        const found = data.find((item) => item.slug === query.productSlug);
+
+        console.log("商品リスト:", data);               // ← ログ①
+        console.log("クエリslug:", slug);              // ← ログ②
+
+        const found = data.find(
+          (item) => item.slug?.toLowerCase() === slug
+        );
+
+        console.log("見つかった商品:", found);         // ← ログ③
+
         setProduct(found || null);
+
+        const cartData = await myWixClient.currentCart.getCurrentCart();
+        setCart(cartData);
+
+        if (found) {
+          const foundItem = cartData.lineItems?.find(
+            (item) => item.catalogReference.catalogItemId === found.wixProductId
+          );
+          if (foundItem) {
+            setQuantity(foundItem.quantity);
+            setCartItemId(foundItem._id);
+          }
+        }
       } catch (error) {
-        console.error("商品取得エラー:", error);
+        console.error("データ取得エラー:", error);
         setProduct(null);
       } finally {
         setLoading(false);
       }
     }
 
-    async function fetchCart() {
-      try {
-        const cartData = await myWixClient.currentCart.getCurrentCart();
-        setCart(cartData);
-      } catch (error) {
-        console.error("カート取得失敗:", error);
-      }
-    }
-
-    fetchProduct();
-    fetchCart();
+    fetchData();
   }, [query.itemId, query.productSlug]);
 
-  const addToCart = async () => {
+  const updateQuantity = async (newQty) => {
     if (!product || !product.wixProductId) return;
+    if (newQty < 0) return;
 
-    const { cart: updatedCart } = await myWixClient.currentCart.addToCurrentCart({
-      lineItems: [
-        {
-          catalogReference: {
-            appId: "1380b703-ce81-ff05-f115-39571d94dfcd", // Wix側のApp ID
-            catalogItemId: product.wixProductId,
-          },
-          quantity: 1,
-        },
-      ],
-    });
+    try {
+      if (newQty === 0 && cartItemId) {
+        await myWixClient.currentCart.removeLineItemFromCurrentCart(cartItemId);
+        setQuantity(0);
+        setCartItemId(null);
+        const updatedCart = await myWixClient.currentCart.getCurrentCart();
+        setCart(updatedCart);
+        return;
+      }
 
-    setCart(updatedCart);
+      if (cartItemId) {
+        const { cart: updatedCart } =
+          await myWixClient.currentCart.updateCurrentCartLineItemQuantity([
+            { _id: cartItemId, quantity: newQty },
+          ]);
+        setQuantity(newQty);
+        setCart(updatedCart);
+      } else {
+        const { cart: updatedCart } =
+          await myWixClient.currentCart.addToCurrentCart({
+            lineItems: [
+              {
+                catalogReference: {
+                  appId: "1380b703-ce81-ff05-f115-39571d94dfcd",
+                  catalogItemId: product.wixProductId,
+                },
+                quantity: 1,
+              },
+            ],
+          });
+        const addedItem = updatedCart.lineItems.find(
+          (item) => item.catalogReference.catalogItemId === product.wixProductId
+        );
+        setCart(updatedCart);
+        setQuantity(1);
+        setCartItemId(addedItem?._id);
+      }
+    } catch (err) {
+      console.error("数量変更失敗:", err);
+    }
   };
 
   const checkout = async () => {
-    const { checkoutId } =
-      await myWixClient.currentCart.createCheckoutFromCurrentCart({
-        channelType: currentCart.ChannelType.WEB,
+    try {
+      const { checkoutId } =
+        await myWixClient.currentCart.createCheckoutFromCurrentCart({
+          channelType: currentCart.ChannelType.WEB,
+        });
+
+      const redirect = await myWixClient.redirects.createRedirectSession({
+        ecomCheckout: { checkoutId },
+        callbacks: { postFlowUrl: window.location.href },
       });
 
-    const redirect = await myWixClient.redirects.createRedirectSession({
-      ecomCheckout: { checkoutId },
-      callbacks: { postFlowUrl: window.location.href },
-    });
-
-    window.location = redirect.redirectSession.fullUrl;
+      window.location = redirect.redirectSession.fullUrl;
+    } catch (err) {
+      console.error("チェックアウト失敗:", err);
+    }
   };
 
   const clearCart = async () => {
-    await myWixClient.currentCart.deleteCurrentCart();
-    setCart({});
+    try {
+      await myWixClient.currentCart.deleteCurrentCart();
+      setCart({});
+      setCartItemId(null);
+      setQuantity(0);
+    } catch (err) {
+      console.error("カートクリア失敗:", err);
+    }
   };
 
   if (loading) return <p>読み込み中...</p>;
@@ -98,10 +156,15 @@ export default function ProductDetailPage() {
       <h1>{product.name}</h1>
       <p>{product.description}</p>
       <p>{product.price}</p>
-      <button onClick={addToCart}>カートに追加</button>
+
+      <div style={{ display: "flex", alignItems: "center", gap: "12px", marginTop: "16px" }}>
+        <button onClick={() => updateQuantity(quantity - 1)}>-</button>
+        <span>{quantity} 個</span>
+        <button onClick={() => updateQuantity(quantity + 1)}>+</button>
+      </div>
 
       {cart.lineItems?.length > 0 && (
-        <div>
+        <div style={{ marginTop: "32px" }}>
           <h2>My Cart:</h2>
           <ul>
             {cart.lineItems.map((item, index) => (
