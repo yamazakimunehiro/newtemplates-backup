@@ -1,0 +1,66 @@
+[
+  {
+    "name": "PBスキンパウダー： 【ミックスパック】 マザベジシリカパウダー 1,500mg - THA",
+    "slug": "double-tha",
+    "description": "ミックスパックです。",
+    "price": "3,100円",
+    "wixProductId": "d962854d-1988-423c-ba31-d4c97b81422f",
+    "url": "https://www.agent14.org/product-page/double-tha"
+  },
+  {
+    "name": "PBスキンパウダー：【薬用スライドケース】マザベジシリカパウダー 1,500mg - THA",
+    "slug": "case-tha",
+    "description": "薬用スライドケ－スです。",
+    "price": "3,100円",
+    "wixProductId": "28988191-605e-45de-84be-16ff96a0df40",
+    "url": "https://www.agent14.org/product-page/case-tha"
+  },
+  {
+    "name": "PBスキンパウダー：【10本セット】マザベジシリカパウダー 7,500mg - THA",
+    "slug": "refill-tha",
+    "description": "薬用スライドケ－スです。",
+    "price": "10,000円",
+    "wixProductId": "1d0290a9-5ef0-486e-bf51-75820f7286ae",
+    "url": "https://www.agent14.org/product-page/refill-tha"
+  },
+  {
+   "name": "PBスキンパウダー：【30本セット】マザベジシリカパウダー 22,500mg - THA",
+    "slug": "big-refill-tha",
+    "description": "30本セットです。",
+    "price": "18,000円",
+    "wixProductId": "32acb95b-425e-43f6-a8f2-134547954059",
+    "url": "https://www.agent14.org/product-page/big-refill-tha"
+  },
+  {
+    "name": "PBスキンパウダー：【ミックスパック】 マザベジシリカパウダー 2,000mg（エクトイン入り） - THA",
+    "slug": "double-e-tha",
+    "description": "ミックスパック（エクトイン入り）です。",
+    "price": "3,100円",
+    "wixProductId": "66bd4bf6-9215-4ba7-9034-e77aeb7955ad",
+    "url": "https://www.agent14.org/product-page/double-e-tha"
+  },
+  {
+   "name": "PBスキンパウダー：【薬用スライドケース】マザベジシリカパウダー 2,000mg（エクトイン入り） - THA",
+    "slug": "case-e-tha",
+    "description": "薬用スライドケ－ス（エクトイン入り）です。",
+    "price": "3,100円",
+    "wixProductId": "efd5997a-4467-448c-aa26-13ba50d9e80e",
+    "url": "https://www.agent14.org/product-page/case-e-tha"
+  },
+  {
+   "name": "PBスキンパウダー：【10本セット】マザベジシリカパウダー 10,000mg（エクトイン入り） - THA",
+    "slug": "refill-e-tha",
+    "description": "10本セット（エクトイン入り）です。",
+    "price": "11,000円",
+    "wixProductId": "ee399fca-216f-4b95-88dc-6f9a065a74d7",
+    "url": "https://www.agent14.org/product-page/refill-e-tha"
+  },
+  {
+   "name": "PBスキンパウダー：【30本セット】マザベジシリカパウダー 30,000mg（エクトイン入り） - THA",
+    "slug": "big-refill-e-tha",
+    "description": "30本セット（エクトイン入り）です。",
+    "price": "28,000円",
+    "wixProductId": "3c642985-71a7-4097-b8bc-1c130fd576b4",
+    "url": "https://www.agent14.org/product-page/big-refill-e-tha"
+  }
+]
