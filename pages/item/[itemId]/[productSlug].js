@@ -6,7 +6,7 @@ import { products } from "@wix/stores";
 import { currentCart } from "@wix/ecom";
 import { redirects } from "@wix/redirects";
 
-// 環境変数から取得することをおすすめ（直接書いてもOK）
+// 環境変数または直接書き込み
 const CLIENT_ID = "your-client-id"; // ← 実際のCLIENT_IDに置き換えてください
 
 const myWixClient = createClient({
@@ -31,12 +31,25 @@ export default function ProductDetailPage() {
 
     async function fetchData() {
       try {
-        const res = await fetch(`/${query.itemId.toLowerCase()}_products.json`);
+        const agentId = query.itemId.toLowerCase();
+        const slug = query.productSlug.toLowerCase();
+
+        const res = await fetch(`/${agentId}_products.json`);
         if (!res.ok) throw new Error("商品JSON取得失敗");
 
         const data = await res.json();
-        const found = data.find((item) => item.slug === query.productSlug);
+
+        console.log("商品リスト:", data);               // ← ログ①
+        console.log("クエリslug:", slug);              // ← ログ②
+
+        const found = data.find(
+          (item) => item.slug?.toLowerCase() === slug
+        );
+
+        console.log("見つかった商品:", found);         // ← ログ③
+
         setProduct(found || null);
+
         const cartData = await myWixClient.currentCart.getCurrentCart();
         setCart(cartData);
 
