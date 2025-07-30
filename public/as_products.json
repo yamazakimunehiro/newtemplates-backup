@@ -1,22 +1,66 @@
 [
   {
-    "name": "スターターキット",
-    "url": "https://www.agent14.org/product-page/starter-as"
-  },
-  {
-    "name": "スターターダブル",
+    "name": "PBスキンパウダー： 【ミックスパック】 マザベジシリカパウダー 1,500mg - as",
+    "slug": "double-as",
+    "description": "ミックスパックです。",
+    "price": "3,100円",
+    "wixProductId": "b57e49bb-e2fd-4348-a2e2-092f2c7df0c2",
     "url": "https://www.agent14.org/product-page/double-as"
   },
   {
-    "name": "薬用スライドケース",
+    "name": "PBスキンパウダー：【薬用スライドケース】マザベジシリカパウダー 1,500mg - as",
+    "slug": "case-as",
+    "description": "薬用スライドケ－スです。",
+    "price": "3,100円",
+    "wixProductId": "",
     "url": "https://www.agent14.org/product-page/case-as"
   },
   {
-    "name": "詰め替え用",
+    "name": "PBスキンパウダー：【10本セット】マザベジシリカパウダー 7,500mg - as",
+    "slug": "refill-as",
+    "description": "薬用スライドケ－スです。",
+    "price": "10,000円",
+    "wixProductId": "",
     "url": "https://www.agent14.org/product-page/refill-as"
   },
   {
-    "name": "大容量",
+   "name": "PBスキンパウダー：【30本セット】マザベジシリカパウダー 22,500mg - as",
+    "slug": "big-refill-as",
+    "description": "30本セットです。",
+    "price": "18,000円",
+    "wixProductId": "",
     "url": "https://www.agent14.org/product-page/big-refill-as"
+  },
+  {
+    "name": "PBスキンパウダー：【ミックスパック】 マザベジシリカパウダー 2,000mg（エクトイン入り） - as",
+    "slug": "double-e-as",
+    "description": "ミックスパック（エクトイン入り）です。",
+    "price": "3,100円",
+    "wixProductId": "",
+    "url": "https://www.agent14.org/product-page/double-e-as"
+  },
+  {
+   "name": "PBスキンパウダー：【薬用スライドケース】マザベジシリカパウダー 2,000mg（エクトイン入り） - as",
+    "slug": "case-e-as",
+    "description": "薬用スライドケ－ス（エクトイン入り）です。",
+    "price": "3,100円",
+    "wixProductId": "",
+    "url": "https://www.agent14.org/product-page/case-e-as"
+  },
+  {
+   "name": "PBスキンパウダー：【10本セット】マザベジシリカパウダー 10,000mg（エクトイン入り） - as",
+    "slug": "refill-e-as",
+    "description": "10本セット（エクトイン入り）です。",
+    "price": "11,000円",
+    "wixProductId": "",
+    "url": "https://www.agent14.org/product-page/refill-e-as"
+  },
+  {
+   "name": "PBスキンパウダー：【30本セット】マザベジシリカパウダー 30,000mg（エクトイン入り） - as",
+    "slug": "big-refill-e-as",
+    "description": "30本セット（エクトイン入り）です。",
+    "price": "28,000円",
+    "wixProductId": "",
+    "url": "https://www.agent14.org/product-page/big-refill-e-as"
   }
 ]
