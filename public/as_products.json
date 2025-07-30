@@ -1,0 +1,24 @@
+{
+  "as": [
+    {
+      "name": "スターターキット",
+      "url": "https://www.agent14.org/product-page/starter-as"
+    },
+    {
+      "name": "スターターダブル",
+      "url": "https://www.agent14.org/product-page/double-as"
+    },
+    {
+      "name": "薬用スライドケース",
+      "url": "https://www.agent14.org/product-page/case-as"
+    },
+    {
+      "name": "詰め替え用",
+      "url": "https://www.agent14.org/product-page/refill-as"
+    },
+    {
+      "name": "大容量",
+      "url": "https://www.agent14.org/product-page/big-refill-as"
+    }
+  ]
+}

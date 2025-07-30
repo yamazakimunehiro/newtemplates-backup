@@ -10,14 +10,14 @@ export default function AgentItemPage() {
     if (!query.itemId) return;
 
     async function fetchProducts() {
+      const agentId = query.itemId.toLowerCase(); // ← itemId を先に取得
+
       try {
-        const res = await fetch("/kk_products.json");
+        const res = await fetch(`/${agentId}_products.json`); // ← 修正ポイント
+        if (!res.ok) throw new Error("データ取得失敗");
+
         const data = await res.json();
-
-        const agentId = query.itemId.toLowerCase();
-        const agentProducts = data[agentId] || [];
-
-        setProducts(agentProducts);
+        setProducts(data); // ← 直接 products をセット（JSON構造が配列前提に）
       } catch (error) {
         console.error("商品データの取得に失敗しました:", error);
         setProducts([]);
