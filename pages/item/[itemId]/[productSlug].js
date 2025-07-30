@@ -26,10 +26,8 @@ export default function ProductDetailPage() {
         const found = data.find((item) => item.slug?.toLowerCase() === slug);
         setProduct(found || null);
 
-        // 👇 セッション状態を確認（ログインしてないと null）
         console.log("session cookie:", Cookies.get("session"));
 
-        // 👇 カートの取得を安全に try/catch で処理
         try {
           const cartData = await myWixClient.currentCart.getCurrentCart();
           setCart(cartData);
@@ -44,7 +42,7 @@ export default function ProductDetailPage() {
             }
           }
         } catch (err) {
-          console.warn("⚠ カート取得に失敗しました。セッションがない可能性があります。");
+          console.warn("⚠ カート取得に失敗（未ログインの可能性）:", err);
           setCart({ lineItems: [] });
         }
 
@@ -87,7 +85,7 @@ export default function ProductDetailPage() {
             lineItems: [
               {
                 catalogReference: {
-                  appId: "1380b703-ce81-ff05-f115-39571d94dfcd", // 固定Wix App ID
+                  appId: "1380b703-ce81-ff05-f115-39571d94dfcd",
                   catalogItemId: product.wixProductId,
                 },
                 quantity: 1,
