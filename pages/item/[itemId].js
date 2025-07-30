@@ -1,5 +1,6 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import Link from "next/link"; // ← 追加：内部リンク用
 
 export default function AgentItemPage() {
   const { query } = useRouter();
@@ -10,14 +11,14 @@ export default function AgentItemPage() {
     if (!query.itemId) return;
 
     async function fetchProducts() {
-      const agentId = query.itemId.toLowerCase(); // ← itemId を先に取得
+      const agentId = query.itemId.toLowerCase();
 
       try {
-        const res = await fetch(`/${agentId}_products.json`); // ← 修正ポイント
+        const res = await fetch(`/${agentId}_products.json`);
         if (!res.ok) throw new Error("データ取得失敗");
 
         const data = await res.json();
-        setProducts(data); // ← 直接 products をセット（JSON構造が配列前提に）
+        setProducts(data); // ← JSONは配列形式
       } catch (error) {
         console.error("商品データの取得に失敗しました:", error);
         setProducts([]);
@@ -38,9 +39,9 @@ export default function AgentItemPage() {
         <ul>
           {products.map((item, index) => (
             <li key={index}>
-              <a href={item.url} target="_blank" rel="noopener noreferrer">
+              <Link href={`/item/${query.itemId}/${item.slug}`}>
                 {item.name}
-              </a>
+              </Link>
             </li>
           ))}
         </ul>
