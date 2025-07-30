@@ -1,22 +1,6 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import Cookies from "js-cookie";
-import { createClient, OAuthStrategy } from "@wix/sdk";
-import { products } from "@wix/stores";
-import { currentCart } from "@wix/ecom";
-import { redirects } from "@wix/redirects";
-
-// 環境変数または直接書き込み
-const CLIENT_ID = "your-client-id"; // ← 実際のCLIENT_IDに置き換えてください
-
-const myWixClient = createClient({
-  modules: { products, currentCart, redirects },
-  siteId: process.env.NEXT_PUBLIC_WIX_SITE_ID,
-  auth: OAuthStrategy({
-    clientId: CLIENT_ID,
-    tokens: JSON.parse(Cookies.get("session") || null),
-  }),
-});
+import { myWixClient } from "@/lib/wixClient";
 
 export default function ProductDetailPage() {
   const { query } = useRouter();
@@ -38,16 +22,7 @@ export default function ProductDetailPage() {
         if (!res.ok) throw new Error("商品JSON取得失敗");
 
         const data = await res.json();
-
-        console.log("商品リスト:", data);               // ← ログ①
-        console.log("クエリslug:", slug);              // ← ログ②
-
-        const found = data.find(
-          (item) => item.slug?.toLowerCase() === slug
-        );
-
-        console.log("見つかった商品:", found);         // ← ログ③
-
+        const found = data.find((item) => item.slug?.toLowerCase() === slug);
         setProduct(found || null);
 
         const cartData = await myWixClient.currentCart.getCurrentCart();
@@ -65,6 +40,7 @@ export default function ProductDetailPage() {
       } catch (error) {
         console.error("データ取得エラー:", error);
         setProduct(null);
+        setCart({});
       } finally {
         setLoading(false);
       }
@@ -100,7 +76,7 @@ export default function ProductDetailPage() {
             lineItems: [
               {
                 catalogReference: {
-                  appId: "1380b703-ce81-ff05-f115-39571d94dfcd",
+                  appId: "1380b703-ce81-ff05-f115-39571d94dfcd", // 固定
                   catalogItemId: product.wixProductId,
                 },
                 quantity: 1,
@@ -123,7 +99,7 @@ export default function ProductDetailPage() {
     try {
       const { checkoutId } =
         await myWixClient.currentCart.createCheckoutFromCurrentCart({
-          channelType: currentCart.ChannelType.WEB,
+          channelType: "WEB",
         });
 
       const redirect = await myWixClient.redirects.createRedirectSession({
