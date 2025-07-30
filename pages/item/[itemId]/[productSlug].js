@@ -4,7 +4,9 @@ import { myWixClient } from "../../../src/lib/wixClient";
 import Cookies from "js-cookie";
 
 export default function ProductDetailPage() {
-  const { query } = useRouter();
+  const router = useRouter();
+  const { isReady, query } = router;
+
   const [product, setProduct] = useState(null);
   const [cart, setCart] = useState({});
   const [cartItemId, setCartItemId] = useState(null);
@@ -12,7 +14,7 @@ export default function ProductDetailPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!query.itemId || !query.productSlug) return;
+    if (!isReady || !query.itemId || !query.productSlug) return;
 
     async function fetchData() {
       try {
@@ -34,7 +36,8 @@ export default function ProductDetailPage() {
 
           if (found) {
             const foundItem = cartData.lineItems?.find(
-              (item) => item.catalogReference.catalogItemId === found.wixProductId
+              (item) =>
+                item.catalogReference.catalogItemId === found.wixProductId
             );
             if (foundItem) {
               setQuantity(foundItem.quantity);
@@ -45,7 +48,6 @@ export default function ProductDetailPage() {
           console.warn("⚠ カート取得に失敗（未ログインの可能性）:", err);
           setCart({ lineItems: [] });
         }
-
       } catch (error) {
         console.error("データ取得エラー:", error);
         setProduct(null);
@@ -56,7 +58,7 @@ export default function ProductDetailPage() {
     }
 
     fetchData();
-  }, [query.itemId, query.productSlug]);
+  }, [isReady, query.itemId, query.productSlug]);
 
   const updateQuantity = async (newQty) => {
     if (!product || !product.wixProductId) return;
@@ -93,7 +95,8 @@ export default function ProductDetailPage() {
             ],
           });
         const addedItem = updatedCart.lineItems.find(
-          (item) => item.catalogReference.catalogItemId === product.wixProductId
+          (item) =>
+            item.catalogReference.catalogItemId === product.wixProductId
         );
         setCart(updatedCart);
         setQuantity(1);
