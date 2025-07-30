@@ -1,26 +1,66 @@
 [
   {
+    "name": "PBスキンパウダー： 【ミックスパック】 マザベジシリカパウダー 1,500mg - KK",
+    "slug": "double-kk",
+    "description": "ミックスパックです。",
+    "price": "3,100円",
+    "wixProductId": "1e883d55-f7d5-4135-b7ab-687db8199ee1",
+    "url": "https://www.agent14.org/product-page/double-kk"
+  },
+  {
     "name": "PBスキンパウダー：【薬用スライドケース】マザベジシリカパウダー 1,500mg - KK",
     "slug": "case-kk",
     "description": "薬用スライドケ－スです。",
     "price": "3,100円",
-    "wixProductId": "1e883d55-f7d5-4135-b7ab-687db8199ee1",
+    "wixProductId": "",
     "url": "https://www.agent14.org/product-page/case-kk"
   },
   {
-    "name": "スターターダブル",
-    "url": "https://www.agent14.org/product-page/double-kk"
-  },
-  {
-    "name": "薬用スライドケース",
-    "url": "https://www.agent14.org/product-page/case-kk"
-  },
-  {
-    "name": "詰め替え用",
+    "name": "PBスキンパウダー：【10本セット】マザベジシリカパウダー 7,500mg - KK",
+    "slug": "refill-kk",
+    "description": "薬用スライドケ－スです。",
+    "price": "10,000円",
+    "wixProductId": "",
     "url": "https://www.agent14.org/product-page/refill-kk"
   },
   {
-    "name": "大容量",
+   "name": "PBスキンパウダー：【30本セット】マザベジシリカパウダー 22,500mg - KK",
+    "slug": "big-refill-kk",
+    "description": "30本セットです。",
+    "price": "18,000円",
+    "wixProductId": "",
     "url": "https://www.agent14.org/product-page/big-refill-kk"
+  },
+  {
+    "name": "PBスキンパウダー：【ミックスパック】 マザベジシリカパウダー 2,000mg（エクトイン入り） - KK",
+    "slug": "double-e-kk",
+    "description": "ミックスパック（エクトイン入り）です。",
+    "price": "3,100円",
+    "wixProductId": "",
+    "url": "https://www.agent14.org/product-page/double-e-kk"
+  },
+  {
+   "name": "PBスキンパウダー：【薬用スライドケース】マザベジシリカパウダー 2,000mg（エクトイン入り） - KK",
+    "slug": "case-e-kk",
+    "description": "薬用スライドケ－ス（エクトイン入り）です。",
+    "price": "3,100円",
+    "wixProductId": "",
+    "url": "https://www.agent14.org/product-page/case-e-kk"
+  },
+  {
+   "name": "PBスキンパウダー：【10本セット】マザベジシリカパウダー 10,000mg（エクトイン入り） - KK",
+    "slug": "refill-e-kk",
+    "description": "10本セット（エクトイン入り）です。",
+    "price": "11,000円",
+    "wixProductId": "",
+    "url": "https://www.agent14.org/product-page/refill-e-kk"
+  },
+  {
+   "name": "PBスキンパウダー：【30本セット】マザベジシリカパウダー 30,000mg（エクトイン入り） - KK",
+    "slug": "big-refill-e-kk",
+    "description": "30本セット（エクトイン入り）です。",
+    "price": "28,000円",
+    "wixProductId": "",
+    "url": "https://www.agent14.org/product-page/big-refill-e-kk"
   }
 ]
