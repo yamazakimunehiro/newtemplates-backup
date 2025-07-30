@@ -1,24 +1,22 @@
-{
-  "kk": [
-    {
-      "name": "スターターキット",
-      "url": "https://www.agent14.org/product-page/starter-kk"
-    },
-    {
-      "name": "スターターダブル",
-      "url": "https://www.agent14.org/product-page/double-kk"
-    },
-    {
-      "name": "薬用スライドケース",
-      "url": "https://www.agent14.org/product-page/case-kk"
-    },
-    {
-      "name": "詰め替え用",
-      "url": "https://www.agent14.org/product-page/refill-kk"
-    },
-    {
-      "name": "大容量",
-      "url": "https://www.agent14.org/product-page/big-refill-kk"
-    }
-  ]
-}
+[
+  {
+    "name": "スターターキット",
+    "url": "https://www.agent14.org/product-page/starter-kk"
+  },
+  {
+    "name": "スターターダブル",
+    "url": "https://www.agent14.org/product-page/double-kk"
+  },
+  {
+    "name": "薬用スライドケース",
+    "url": "https://www.agent14.org/product-page/case-kk"
+  },
+  {
+    "name": "詰め替え用",
+    "url": "https://www.agent14.org/product-page/refill-kk"
+  },
+  {
+    "name": "大容量",
+    "url": "https://www.agent14.org/product-page/big-refill-kk"
+  }
+]
