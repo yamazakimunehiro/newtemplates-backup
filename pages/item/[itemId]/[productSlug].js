@@ -2,13 +2,16 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { createClient, OAuthStrategy } from "@wix/sdk";
-import { products, currentCart, redirects } from "@wix/stores";
+import { products } from "@wix/stores";
+import { currentCart } from "@wix/ecom";
+import { redirects } from "@wix/redirects";
 
-const CLIENT_ID = "your-client-id"; // 既存のCLIENT_IDをここに
+// 定数（環境変数と合わせてください）
+const CLIENT_ID = "your-client-id"; // 既存の CLIENT_ID に合わせて書き換えてください
 
 const myWixClient = createClient({
   modules: { products, currentCart, redirects },
-  siteId: process.env.NEXT_PUBLIC_WIX_SITE_ID,
+  siteId: process.env.NEXT_PUBLIC_WIX_SITE_ID, // .env で定義してください
   auth: OAuthStrategy({
     clientId: CLIENT_ID,
     tokens: JSON.parse(Cookies.get("session") || null),
@@ -56,38 +59,50 @@ export default function ProductDetailPage() {
   const addToCart = async () => {
     if (!product || !product.wixProductId) return;
 
-    const { cart: updatedCart } = await myWixClient.currentCart.addToCurrentCart({
-      lineItems: [
-        {
-          catalogReference: {
-            appId: "1380b703-ce81-ff05-f115-39571d94dfcd", // Wix側のApp ID
-            catalogItemId: product.wixProductId,
+    try {
+      const { cart: updatedCart } = await myWixClient.currentCart.addToCurrentCart({
+        lineItems: [
+          {
+            catalogReference: {
+              appId: "1380b703-ce81-ff05-f115-39571d94dfcd", // 固定ID（Wix Stores App）
+              catalogItemId: product.wixProductId,
+            },
+            quantity: 1,
           },
-          quantity: 1,
-        },
-      ],
-    });
+        ],
+      });
 
-    setCart(updatedCart);
+      setCart(updatedCart);
+    } catch (error) {
+      console.error("カート追加失敗:", error);
+    }
   };
 
   const checkout = async () => {
-    const { checkoutId } =
-      await myWixClient.currentCart.createCheckoutFromCurrentCart({
-        channelType: currentCart.ChannelType.WEB,
+    try {
+      const { checkoutId } =
+        await myWixClient.currentCart.createCheckoutFromCurrentCart({
+          channelType: currentCart.ChannelType.WEB,
+        });
+
+      const redirect = await myWixClient.redirects.createRedirectSession({
+        ecomCheckout: { checkoutId },
+        callbacks: { postFlowUrl: window.location.href },
       });
 
-    const redirect = await myWixClient.redirects.createRedirectSession({
-      ecomCheckout: { checkoutId },
-      callbacks: { postFlowUrl: window.location.href },
-    });
-
-    window.location = redirect.redirectSession.fullUrl;
+      window.location = redirect.redirectSession.fullUrl;
+    } catch (error) {
+      console.error("チェックアウトエラー:", error);
+    }
   };
 
   const clearCart = async () => {
-    await myWixClient.currentCart.deleteCurrentCart();
-    setCart({});
+    try {
+      await myWixClient.currentCart.deleteCurrentCart();
+      setCart({});
+    } catch (error) {
+      console.error("カートクリア失敗:", error);
+    }
   };
 
   if (loading) return <p>読み込み中...</p>;
@@ -101,7 +116,7 @@ export default function ProductDetailPage() {
       <button onClick={addToCart}>カートに追加</button>
 
       {cart.lineItems?.length > 0 && (
-        <div>
+        <div style={{ marginTop: "32px" }}>
           <h2>My Cart:</h2>
           <ul>
             {cart.lineItems.map((item, index) => (
